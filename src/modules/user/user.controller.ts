@@ -18,8 +18,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(@Body() data: CreateUserDto) {
+    return this.userService.create(data);
   }
 
   @Get()
@@ -33,8 +33,8 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(Number(id), updateUserDto);
+  update(@Param('id') id: string, @Body() data: UpdateUserDto) {
+    return this.userService.update(Number(id), data);
   }
 
   @Delete(':id')
