@@ -8,8 +8,20 @@ import { RoleRepository } from './repository/role.repository';
 export class RoleService {
   constructor(private readonly repository: RoleRepository) {}
 
+  static rolesCannotBeModified() {
+    return ['superadmin'];
+  }
+
+  isRoleCannotBeModified(role: string) {
+    const isRoleCannotBeModified = RoleService.rolesCannotBeModified().includes(role);
+    if (isRoleCannotBeModified)
+      throw new NotFoundException(`Role with name "${role}" cannot be modified`);
+    return false;
+  }
+
   async create(data: CreateRoleDto) {
     await this.isUnique(data.name);
+    this.isRoleCannotBeModified(data.name);
     return this.repository.save(data, { reload: true });
   }
 
@@ -22,13 +34,15 @@ export class RoleService {
   }
 
   async update(id: number, data: UpdateRoleDto) {
+    this.isRoleCannotBeModified(data.name);
     await this.findOneById(id);
     await this.isUnique(data.name, id);
     return this.repository.save({ id, ...data }, { reload: true });
   }
 
   async remove(id: number) {
-    await this.findOneById(id);
+    const role = await this.findOneById(id);
+    this.isRoleCannotBeModified(role.name);
     await this.hasChild(id);
     const deleted = await this.repository.softDelete(id);
     return { success: deleted.affected > 0 };
