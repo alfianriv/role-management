@@ -13,9 +13,12 @@ export class RoleService {
   }
 
   isRoleCannotBeModified(role: string) {
-    const isRoleCannotBeModified = RoleService.rolesCannotBeModified().includes(role);
+    const isRoleCannotBeModified =
+      RoleService.rolesCannotBeModified().includes(role);
     if (isRoleCannotBeModified)
-      throw new NotFoundException(`Role with name "${role}" cannot be modified`);
+      throw new NotFoundException(
+        `Role with name "${role}" cannot be modified`,
+      );
     return false;
   }
 
