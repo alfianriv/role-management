@@ -1,33 +1,26 @@
-import { BaseEntity } from 'src/commons/base.entity';
+import {
+  BelongsTo,
+  Column,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { PermissionGroupEntity } from 'src/modules/permission-group/entities/permission-group.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
 
-@Entity({ name: 'PermissionGroupsRoles' })
-export class PermissionGroupRolesEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
-  @Column({ type: 'integer' })
-  permissionGroupId: number;
-
-  @Column({ type: 'integer' })
+@Table({ tableName: 'PermissionGroupsRoles' })
+export class PermissionGroupsRolesEntity extends Model {
+  @Column
+  @ForeignKey(() => RoleEntity)
   roleId: number;
 
-  @ManyToOne(
-    () => PermissionGroupEntity,
-    (permissionGroup) => permissionGroup.roles,
-  )
-  @JoinColumn({ name: 'permissionGroupId' })
-  permissionGroup: PermissionGroupEntity;
-
-  @ManyToOne(() => RoleEntity, (role) => role.permissionGroups)
-  @JoinColumn({ name: 'roleId' })
+  @BelongsTo(() => RoleEntity)
   role: RoleEntity;
+
+  @Column
+  @ForeignKey(() => PermissionGroupEntity)
+  permissionGroupId: number;
+
+  @BelongsTo(() => PermissionGroupEntity)
+  permissionGroup: PermissionGroupEntity;
 }
