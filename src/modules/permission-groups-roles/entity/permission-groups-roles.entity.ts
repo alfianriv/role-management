@@ -5,20 +5,20 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { PermissionGroupEntity } from 'src/modules/permission-group/entities/permission-group.entity';
-import { RoleEntity } from 'src/modules/role/entities/role.entity';
+import { PermissionGroupEntity } from '@/src/modules/permission-group/entities/permission-group.entity';
+import { RoleEntity } from '@/src/modules/role/entities/role.entity';
 
 @Table({ tableName: 'PermissionGroupsRoles' })
 export class PermissionGroupsRolesEntity extends Model {
-  @Column
   @ForeignKey(() => RoleEntity)
+  @Column
   roleId: number;
 
   @BelongsTo(() => RoleEntity)
   role: RoleEntity;
 
-  @Column
   @ForeignKey(() => PermissionGroupEntity)
+  @Column
   permissionGroupId: number;
 
   @BelongsTo(() => PermissionGroupEntity)

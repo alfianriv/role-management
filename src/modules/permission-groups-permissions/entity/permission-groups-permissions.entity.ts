@@ -5,8 +5,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { PermissionGroupEntity } from 'src/modules/permission-group/entities/permission-group.entity';
-import { PermissionEntity } from 'src/modules/permission/entities/permission.entity';
+import { PermissionGroupEntity } from '@/src/modules/permission-group/entities/permission-group.entity';
+import { PermissionEntity } from '@/src/modules/permission/entities/permission.entity';
 
 @Table({ tableName: 'PermissionGroupsPermissions' })
 export class PermissionGroupsPermissionsEntity extends Model {

@@ -8,21 +8,21 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript';
-import { RoleEntity } from 'src/modules/role/entities/role.entity';
+import { RoleEntity } from '@/src/modules/role/entities/role.entity';
 
-@Table
+@Table({ tableName: 'Users' })
 export class UserEntity extends Model {
   @Column
   name: string;
 
-  @Column
   @IsEmail
   @Unique
+  @Column
   email: string;
 
   @ForeignKey(() => RoleEntity)
-  @Column
   @AllowNull
+  @Column
   roleId: number;
 
   @BelongsTo(() => RoleEntity)
