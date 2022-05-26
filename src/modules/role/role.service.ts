@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Not } from 'typeorm';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { RoleRepository } from './repository/role.repository';
+import { RoleEntity } from './entities/role.entity';
 
 @Injectable()
 export class RoleService {
-  constructor(private readonly repository: RoleRepository) {}
+  constructor(
+    @InjectModel(RoleEntity)
+    private readonly repository: typeof RoleEntity,
+  ) {}
 
   static rolesCannotBeModified() {
     return ['superadmin'];
@@ -25,11 +29,12 @@ export class RoleService {
   async create(data: CreateRoleDto) {
     await this.isUnique(data.name);
     this.isRoleCannotBeModified(data.name);
-    return this.repository.save(data, { reload: true });
+    const role: any = data;
+    return this.repository.create(role);
   }
 
   findAll() {
-    return this.repository.find();
+    return this.repository.findAll();
   }
 
   findOne(id: number) {
@@ -38,28 +43,29 @@ export class RoleService {
 
   async update(id: number, data: UpdateRoleDto) {
     this.isRoleCannotBeModified(data.name);
-    await this.findOneById(id);
+    const role = await this.findOneById(id);
     await this.isUnique(data.name, id);
-    return this.repository.save({ id, ...data }, { reload: true });
+    role.update({ ...data });
+    return role.save();
   }
 
   async remove(id: number) {
     const role = await this.findOneById(id);
     this.isRoleCannotBeModified(role.name);
     await this.hasChild(id);
-    const deleted = await this.repository.softDelete(id);
-    return { success: deleted.affected > 0 };
+    await role.destroy();
+    return { success: true };
   }
 
   async findOneById(id: number) {
-    const role = await this.repository.findOne(id, { relations: ['users'] });
+    const role = await this.repository.findByPk(id, { include: ['users'] });
     if (!role) throw new NotFoundException(`Role with ID "${id}" not found`);
     return role;
   }
 
   async isUnique(name: string, idException: number = null) {
     const where: any = { name };
-    if (idException) where.id = Not(idException);
+    if (idException) where.id = { [Op.not]: idException };
     const role = await this.repository.findOne({ where });
     if (role)
       throw new NotFoundException(`Role with name "${name}" already exists`);

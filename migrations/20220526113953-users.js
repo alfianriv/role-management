@@ -26,13 +26,13 @@ module.exports = {
       },
 
       createdAt: {
-        type: Sequelize.TIMESTAMPZ,
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.TIMESTAMPZ,
+        type: Sequelize.DATE,
       },
       deletedAt: {
-        type: Sequelize.TIMESTAMPZ,
+        type: Sequelize.DATE,
         allowNull: true,
       },
     });
