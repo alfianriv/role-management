@@ -33,8 +33,7 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    await this.findOneById(id);
-    const user = await this.repository.findByPk(id, { include: ['role'] });
+    const user = await this.findOneById(id, { include: ['role'] });
     return { data: user };
   }
 
@@ -51,8 +50,8 @@ export class UserService {
     return { data: { success: true } };
   }
 
-  async findOneById(id: number) {
-    const user = await this.repository.findByPk(id);
+  async findOneById(id: number, options?) {
+    const user = await this.repository.findByPk(id, options);
     if (!user) throw new NotFoundException(`User with ID "${id}" not found`);
     return user;
   }

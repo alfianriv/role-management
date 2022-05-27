@@ -43,8 +43,7 @@ export class RoleService {
   }
 
   async findOne(id: number) {
-    await this.findOneById(id);
-    const role = await this.repository.findByPk(id, { include: ['users'] });
+    const role = await this.findOneById(id, { include: ['users'] });
     return { data: role };
   }
 
@@ -58,15 +57,15 @@ export class RoleService {
   }
 
   async remove(id: number) {
-    const role = await this.findOneById(id);
+    const role = await this.findOneById(id, { include: ['users'] });
     this.isRoleCannotBeModified(role.name);
-    await this.hasChild(id);
+    await this.hasChild(role);
     await role.destroy();
     return { data: { success: true } };
   }
 
-  async findOneById(id: number) {
-    const role = await this.repository.findByPk(id);
+  async findOneById(id: number, options?) {
+    const role = await this.repository.findByPk(id, options);
     if (!role) throw new NotFoundException(`Role with ID "${id}" not found`);
     return role;
   }
@@ -80,10 +79,11 @@ export class RoleService {
     return true;
   }
 
-  async hasChild(id: number) {
-    const role = await this.findOneById(id);
+  async hasChild(role: RoleEntity) {
     if (role.users.length > 0)
-      throw new NotFoundException(`Role with ID "${id}" cannot be deleted`);
+      throw new NotFoundException(
+        `Role with ID "${role.id}" cannot be deleted`,
+      );
     return false;
   }
 }
