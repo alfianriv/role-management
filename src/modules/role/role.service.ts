@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -20,7 +24,7 @@ export class RoleService {
     const isRoleCannotBeModified =
       RoleService.rolesCannotBeModified().includes(role);
     if (isRoleCannotBeModified)
-      throw new NotFoundException(
+      throw new BadRequestException(
         `Role with name "${role}" cannot be modified`,
       );
     return false;
@@ -30,23 +34,27 @@ export class RoleService {
     await this.isUnique(data.name);
     this.isRoleCannotBeModified(data.name);
     const role: any = data;
-    return this.repository.create(role);
+    const saved = await this.repository.create(role);
+    return { data: saved };
   }
 
   findAll() {
     return this.repository.findAll();
   }
 
-  findOne(id: number) {
-    return this.findOneById(id);
+  async findOne(id: number) {
+    await this.findOneById(id);
+    const role = await this.repository.findByPk(id, { include: ['users'] });
+    return { data: role };
   }
 
   async update(id: number, data: UpdateRoleDto) {
     this.isRoleCannotBeModified(data.name);
     const role = await this.findOneById(id);
+    this.isRoleCannotBeModified(role.name);
     await this.isUnique(data.name, id);
-    role.update({ ...data });
-    return role.save();
+    await role.update({ ...data });
+    return { data: role };
   }
 
   async remove(id: number) {
@@ -54,11 +62,11 @@ export class RoleService {
     this.isRoleCannotBeModified(role.name);
     await this.hasChild(id);
     await role.destroy();
-    return { success: true };
+    return { data: { success: true } };
   }
 
   async findOneById(id: number) {
-    const role = await this.repository.findByPk(id, { include: ['users'] });
+    const role = await this.repository.findByPk(id);
     if (!role) throw new NotFoundException(`Role with ID "${id}" not found`);
     return role;
   }

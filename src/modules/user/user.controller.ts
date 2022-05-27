@@ -39,6 +39,11 @@ export class UserController {
     return this.userService.update(Number(id), data);
   }
 
+  @Put(':id/role/:roleId')
+  assignRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return this.userService.assignRole(Number(id), Number(roleId));
+  }
+
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {

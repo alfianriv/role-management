@@ -33,27 +33,26 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    const user = await this.findOneById(id);
+    await this.findOneById(id);
+    const user = await this.repository.findByPk(id, { include: ['role'] });
     return { data: user };
   }
 
   async update(id: number, data: UpdateUserDto) {
     const user = await this.findOneById(id);
     await this.isDuplicateEmail(data.email, id);
-    user.update({ ...data });
-    return { data: await user.save() };
+    await user.update(data);
+    return { data: user };
   }
 
   async remove(id: number) {
     const user = await this.findOneById(id);
-    await this.repository.destroy({ where: { id } });
+    await user.destroy();
     return { data: { success: true } };
   }
 
   async findOneById(id: number) {
-    const user = await this.repository.findByPk(id, {
-      include: ['role'],
-    });
+    const user = await this.repository.findByPk(id);
     if (!user) throw new NotFoundException(`User with ID "${id}" not found`);
     return user;
   }
@@ -61,8 +60,8 @@ export class UserService {
   async assignRole(userId: number, roleId: number) {
     const user = await this.findOneById(userId);
     await this.roleService.findOneById(roleId);
-    user.role.id = roleId;
-    return { data: await user.save() };
+    await user.update({ roleId });
+    return { data: user };
   }
 
   async isDuplicateEmail(email: string, exceptionId: number = null) {
@@ -75,7 +74,7 @@ export class UserService {
         [Op.not]: exceptionId,
       };
     }
-    const user = await this.repository.findOne({ where, paranoid: false });
+    const user = await this.repository.findOne({ where, paranoid: true });
     if (user) throw new BadRequestException(`Email "${email}" already exists`);
   }
 }

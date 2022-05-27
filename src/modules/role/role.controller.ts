@@ -3,9 +3,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -30,7 +30,7 @@ export class RoleController {
     return this.roleService.findOne(Number(id));
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() data: UpdateRoleDto) {
     return this.roleService.update(Number(id), data);
   }
