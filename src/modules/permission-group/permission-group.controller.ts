@@ -57,6 +57,18 @@ export class PermissionGroupController {
     return this.permissionGroupService.revokeRole(Number(id), Number(roleId));
   }
 
+  @ApiOperation({ summary: 'Assign permission to permission group' })
+  @Put(':id/permission/:permissionId')
+  assignPermission(@Param('id') id: string, @Param('permissionId') permissionId: string) {
+    return this.permissionGroupService.assignPermission(Number(id), Number(permissionId));
+  }
+
+  @ApiOperation({ summary: 'Revoke permission from permission group' })
+  @Delete(':id/permission/:permissionId')
+  revokePermission(@Param('id') id: string, @Param('permissionId') permissionId: string) {
+    return this.permissionGroupService.revokePermission(Number(id), Number(permissionId));
+  }
+
   @ApiOperation({ summary: 'Delete permission group by id' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

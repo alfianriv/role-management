@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
+import { PermissionService } from '../permission/permission.service';
 import { RoleService } from '../role/role.service';
 import { CreatePermissionGroupDto } from './dto/create-permission-group.dto';
 import { UpdatePermissionGroupDto } from './dto/update-permission-group.dto';
@@ -19,6 +20,8 @@ export class PermissionGroupService {
     private readonly repository: typeof PermissionGroupEntity,
     @Inject(forwardRef(() => RoleService))
     private readonly roleService: RoleService,
+    @Inject(forwardRef(() => PermissionService))
+    private readonly permissionService: PermissionService,
   ) {}
 
   async create(data: CreatePermissionGroupDto) {
@@ -68,6 +71,22 @@ export class PermissionGroupService {
     await this.roleService.findOneById(roleId);
     await permissionGroup.$remove('roles', roleId);
     const saved = await this.findOneById(id, { include: ['roles'] });
+    return { data: saved };
+  }
+
+  async assignPermission(id: number, permissionId: number) {
+    const permissionGroup = await this.findOneById(id);
+    await this.permissionService.findOneById(permissionId);
+    await permissionGroup.$add('permissions', permissionId);
+    const saved = await this.findOneById(id, { include: ['permissions'] });
+    return { data: saved };
+  }
+
+  async revokePermission(id: number, permissionId: number) {
+    const permissionGroup = await this.findOneById(id);
+    await this.permissionService.findOneById(permissionId);
+    await permissionGroup.$remove('permissions', permissionId);
+    const saved = await this.findOneById(id, { include: ['permissions'] });
     return { data: saved };
   }
 
