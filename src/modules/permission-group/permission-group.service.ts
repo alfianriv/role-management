@@ -37,7 +37,7 @@ export class PermissionGroupService {
 
   async findOne(id: number) {
     const permissionGroup = await this.findOneById(id, {
-      includes: ['roles', 'permissions'],
+      include: ['roles', 'permissions'],
     });
     return { data: permissionGroup };
   }
