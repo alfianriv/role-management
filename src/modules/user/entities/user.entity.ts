@@ -2,16 +2,19 @@ import {
   AllowNull,
   BelongsTo,
   Column,
+  CreatedAt,
+  DeletedAt,
   ForeignKey,
   IsEmail,
-  Model,
   Table,
   Unique,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { RoleEntity } from '@/src/modules/role/entities/role.entity';
+import { BaseEntity } from '@/src/commons/base.entity';
 
 @Table({ tableName: 'Users' })
-export class UserEntity extends Model {
+export class UserEntity extends BaseEntity {
   @Column
   name: string;
 

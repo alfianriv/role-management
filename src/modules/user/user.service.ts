@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,33 +21,39 @@ export class UserService {
     private readonly roleService: RoleService,
   ) {}
 
-  create(data: CreateUserDto) {
+  async create(data: CreateUserDto) {
     const user: any = data;
-    return this.repository.create(user);
+    await this.isDuplicateEmail(user.email);
+    const saved = await this.repository.create(user);
+    return { data: saved };
   }
 
   findAll() {
     return this.repository.findAll();
   }
 
-  findOne(id: number) {
-    return this.findOneById(id);
+  async findOne(id: number) {
+    const user = await this.findOneById(id);
+    return { data: user };
   }
 
   async update(id: number, data: UpdateUserDto) {
     const user = await this.findOneById(id);
+    await this.isDuplicateEmail(data.email, id);
     user.update({ ...data });
-    return user.save();
+    return { data: await user.save() };
   }
 
   async remove(id: number) {
     const user = await this.findOneById(id);
-    await user.destroy();
-    return { success: true };
+    await this.repository.destroy({ where: { id } });
+    return { data: { success: true } };
   }
 
   async findOneById(id: number) {
-    const user = await this.repository.findByPk(id, { include: ['role'] });
+    const user = await this.repository.findByPk(id, {
+      include: ['role'],
+    });
     if (!user) throw new NotFoundException(`User with ID "${id}" not found`);
     return user;
   }
@@ -54,6 +62,20 @@ export class UserService {
     const user = await this.findOneById(userId);
     await this.roleService.findOneById(roleId);
     user.role.id = roleId;
-    return user.save();
+    return { data: await user.save() };
+  }
+
+  async isDuplicateEmail(email: string, exceptionId: number = null) {
+    const where: any = {
+      email,
+    };
+
+    if (exceptionId) {
+      where.id = {
+        [Op.not]: exceptionId,
+      };
+    }
+    const user = await this.repository.findOne({ where, paranoid: false });
+    if (user) throw new BadRequestException(`Email "${email}" already exists`);
   }
 }
