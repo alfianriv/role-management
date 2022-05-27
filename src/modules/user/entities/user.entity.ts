@@ -1,28 +1,33 @@
-import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import {
-  BaseEntity,
+  AllowNull,
+  BelongsTo,
   Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+  CreatedAt,
+  DeletedAt,
+  ForeignKey,
+  IsEmail,
+  Table,
+  Unique,
+  UpdatedAt,
+} from 'sequelize-typescript';
+import { RoleEntity } from '@/src/modules/role/entities/role.entity';
+import { BaseEntity } from '@/src/commons/base.entity';
 
-@Entity({ name: 'Users' })
+@Table({ tableName: 'Users' })
 export class UserEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
-  @Column({ type: 'varchar', length: 255 })
+  @Column
   name: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @IsEmail
+  @Unique
+  @Column
   email: string;
 
-  @Column({ type: 'integer', nullable: true })
+  @ForeignKey(() => RoleEntity)
+  @AllowNull
+  @Column
   roleId: number;
 
-  @ManyToOne(() => RoleEntity, (role) => role.users)
-  @JoinColumn({ name: 'roleId' })
+  @BelongsTo(() => RoleEntity)
   role: RoleEntity;
 }

@@ -1,35 +1,28 @@
-import { PermissionEntity } from 'src/modules/permission/entities/permission.entity';
-import { RoleEntity } from 'src/modules/role/entities/role.entity';
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BelongsToMany, Column, Table, Unique } from 'sequelize-typescript';
+import { PermissionGroupsPermissionsEntity } from '@/src/modules/permission-groups-permissions/entity/permission-groups-permissions.entity';
+import { PermissionGroupsRolesEntity } from '@/src/modules/permission-groups-roles/entity/permission-groups-roles.entity';
+import { BaseEntity } from '@/src/commons/base.entity';
+import { RoleEntity } from '../../role/entities/role.entity';
+import { PermissionEntity } from '../../permission/entities/permission.entity';
 
-@Entity({ name: 'PermissionGroups' })
+@Table({ tableName: 'PermissionGroups' })
 export class PermissionGroupEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
-  @Column({ type: 'varchar', length: 255 })
+  @Unique
+  @Column
   name: string;
 
-  @ManyToMany(() => RoleEntity)
-  @JoinTable({
-    name: 'PermissionGroupRoles',
-    joinColumn: { name: 'permissionGroupId' },
-    inverseJoinColumn: { name: 'roleId' },
-  })
-  roles: RoleEntity[];
+  @BelongsToMany(() => RoleEntity, () => PermissionGroupsRolesEntity)
+  roles: Array<
+    RoleEntity & { PermissionGroupsRolesEntity: PermissionGroupsRolesEntity }
+  >;
 
-  @ManyToMany(() => PermissionEntity)
-  @JoinTable({
-    name: 'PermissionGroupsPermissions',
-    joinColumn: { name: 'permissionGroupId' },
-    inverseJoinColumn: { name: 'permissionId' },
-  })
-  permissions: PermissionEntity[];
+  @BelongsToMany(
+    () => PermissionEntity,
+    () => PermissionGroupsPermissionsEntity,
+  )
+  permissions: Array<
+    PermissionEntity & {
+      PermissionGroupsPermissionsEntity: PermissionGroupsPermissionsEntity;
+    }
+  >;
 }

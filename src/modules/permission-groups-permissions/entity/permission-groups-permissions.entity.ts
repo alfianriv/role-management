@@ -1,36 +1,21 @@
-import { PermissionGroupEntity } from 'src/modules/permission-group/entities/permission-group.entity';
-import { PermissionEntity } from 'src/modules/permission/entities/permission.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { BaseEntity } from 'typeorm/repository/BaseEntity';
+import { BelongsTo, Column, ForeignKey, Table } from 'sequelize-typescript';
+import { PermissionGroupEntity } from '@/src/modules/permission-group/entities/permission-group.entity';
+import { PermissionEntity } from '@/src/modules/permission/entities/permission.entity';
+import { BaseEntity } from '@/src/commons/base.entity';
 
-@Entity({ name: 'PermissionGroupsPermissions' })
-export class PermissionGroupPermissionsEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
-  @Column({ type: 'integer' })
+@Table({ tableName: 'PermissionGroupsPermissions' })
+export class PermissionGroupsPermissionsEntity extends BaseEntity {
+  @Column
+  @ForeignKey(() => PermissionGroupEntity)
   permissionGroupId: number;
 
-  @Column({ type: 'integer' })
-  permissionId: number;
-
-  @ManyToOne(
-    () => PermissionGroupEntity,
-    (permissionGroup) => permissionGroup.permissions,
-  )
-  @JoinColumn({ name: 'permissionGroupId' })
+  @BelongsTo(() => PermissionGroupEntity)
   permissionGroup: PermissionGroupEntity;
 
-  @ManyToOne(
-    () => PermissionEntity,
-    (permission) => permission.permissionGroups,
-  )
-  @JoinColumn({ name: 'permissionId' })
+  @Column
+  @ForeignKey(() => PermissionEntity)
+  permissionId: number;
+
+  @BelongsTo(() => PermissionEntity)
   permission: PermissionEntity;
 }

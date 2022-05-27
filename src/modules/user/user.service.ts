@@ -1,49 +1,57 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRepository } from './repository/user.repository';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly repository: UserRepository,
+    @InjectModel(UserEntity)
+    private readonly repository: typeof UserEntity,
     @Inject(forwardRef(() => RoleService))
     private readonly roleService: RoleService,
   ) {}
 
-  create(data: CreateUserDto) {
-    return this.repository.save(data, { reload: true });
+  async create(data: CreateUserDto) {
+    const user: any = data;
+    await this.isDuplicateEmail(user.email);
+    const saved = await this.repository.create(user);
+    return { data: saved };
   }
 
   findAll() {
-    return this.repository.find();
+    return this.repository.findAll();
   }
 
-  findOne(id: number) {
-    return this.findOneById(id);
+  async findOne(id: number) {
+    const user = await this.findOneById(id, { include: ['role'] });
+    return { data: user };
   }
 
   async update(id: number, data: UpdateUserDto) {
-    await this.findOneById(id);
-    return this.repository.save({ id, ...data }, { reload: true });
+    const user = await this.findOneById(id);
+    await this.isDuplicateEmail(data.email, id);
+    await user.update(data);
+    return { data: user };
   }
 
   async remove(id: number) {
-    await this.findOneById(id);
-    const deleted = await this.repository.softDelete(id);
-    return { success: deleted.affected > 0 };
+    const user = await this.findOneById(id);
+    await user.destroy();
+    return { data: { success: true } };
   }
 
-  async findOneById(id: number) {
-    const user = await this.repository.findOne(id, {
-      relations: ['role'],
-    });
+  async findOneById(id: number, options?) {
+    const user = await this.repository.findByPk(id, options);
     if (!user) throw new NotFoundException(`User with ID "${id}" not found`);
     return user;
   }
@@ -51,7 +59,28 @@ export class UserService {
   async assignRole(userId: number, roleId: number) {
     const user = await this.findOneById(userId);
     await this.roleService.findOneById(roleId);
-    user.roleId = roleId;
-    return this.repository.save(user, { reload: true });
+    await user.update({ roleId });
+    return { data: user };
+  }
+
+  async revokeRole(userId: number, roleId: number) {
+    const user = await this.findOneById(userId);
+    await this.roleService.findOneById(roleId);
+    await user.update({ roleId: null });
+    return { data: user };
+  }
+
+  async isDuplicateEmail(email: string, exceptionId: number = null) {
+    const where: any = {
+      email,
+    };
+
+    if (exceptionId) {
+      where.id = {
+        [Op.not]: exceptionId,
+      };
+    }
+    const user = await this.repository.findOne({ where, paranoid: true });
+    if (user) throw new BadRequestException(`Email "${email}" already exists`);
   }
 }

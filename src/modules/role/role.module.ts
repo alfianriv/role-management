@@ -1,12 +1,15 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { RoleController } from './role.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
-import { RoleRepository } from './repository/role.repository';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { PermissionGroupModule } from '../permission-group/permission-group.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RoleEntity, RoleRepository])],
+  imports: [
+    SequelizeModule.forFeature([RoleEntity]),
+    forwardRef(() => PermissionGroupModule),
+  ],
   controllers: [RoleController],
   providers: [RoleService],
   exports: [RoleService],

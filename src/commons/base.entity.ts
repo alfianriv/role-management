@@ -1,12 +1,12 @@
-import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import { CreatedAt, DeletedAt, Model, UpdatedAt } from 'sequelize-typescript';
 
-export class BaseEntity {
-  @CreateDateColumn()
+export class BaseEntity extends Model {
+  @CreatedAt
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdatedAt
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeletedAt
   deletedAt: Date;
 }
