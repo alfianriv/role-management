@@ -3,8 +3,8 @@ import { IsString } from 'class-validator';
 
 export class CreatePermissionGroupDto {
   @ApiProperty({
-    description: 'Name of permission group',
-    example: 'Roles:all',
+    description: 'Permission group name',
+    example: 'roles:all',
   })
   @IsString()
   name: string;
