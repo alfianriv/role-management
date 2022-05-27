@@ -10,7 +10,9 @@ import {
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('role')
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
@@ -33,6 +35,14 @@ export class RoleController {
   @Put(':id')
   update(@Param('id') id: string, @Body() data: UpdateRoleDto) {
     return this.roleService.update(Number(id), data);
+  }
+
+  @Put(':id/permission-group/:permissionGroupId')
+  assignPermissionGroup(
+    @Param('id') id: string,
+    @Param('permissionGroupId') permissionGroupId: string,
+  ) {
+    return this.roleService.assignPermissionGroup(Number(id), Number(permissionGroupId));
   }
 
   @Delete(':id')

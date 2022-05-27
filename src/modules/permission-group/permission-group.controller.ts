@@ -3,14 +3,18 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PermissionGroupService } from './permission-group.service';
 import { CreatePermissionGroupDto } from './dto/create-permission-group.dto';
 import { UpdatePermissionGroupDto } from './dto/update-permission-group.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('permission-group')
 @Controller('permission-group')
 export class PermissionGroupController {
   constructor(
@@ -18,8 +22,8 @@ export class PermissionGroupController {
   ) {}
 
   @Post()
-  create(@Body() createPermissionGroupDto: CreatePermissionGroupDto) {
-    return this.permissionGroupService.create(createPermissionGroupDto);
+  create(@Body() data: CreatePermissionGroupDto) {
+    return this.permissionGroupService.create(data);
   }
 
   @Get()
@@ -29,19 +33,22 @@ export class PermissionGroupController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.permissionGroupService.findOne(+id);
+    return this.permissionGroupService.findOne(Number(id));
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePermissionGroupDto: UpdatePermissionGroupDto,
-  ) {
-    return this.permissionGroupService.update(+id, updatePermissionGroupDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() data: UpdatePermissionGroupDto) {
+    return this.permissionGroupService.update(Number(id), data);
   }
 
+  @Put(':id/role/:roleId')
+  assignRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return this.permissionGroupService.assignRole(Number(id), Number(roleId));
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.permissionGroupService.remove(+id);
+    return this.permissionGroupService.remove(Number(id));
   }
 }

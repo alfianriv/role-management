@@ -1,10 +1,13 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
+import { PermissionGroupService } from '../permission-group/permission-group.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RoleEntity } from './entities/role.entity';
@@ -14,6 +17,8 @@ export class RoleService {
   constructor(
     @InjectModel(RoleEntity)
     private readonly repository: typeof RoleEntity,
+    @Inject(forwardRef(() => PermissionGroupService))
+    private readonly permissionGroupService: PermissionGroupService,
   ) {}
 
   static rolesCannotBeModified() {
@@ -43,7 +48,9 @@ export class RoleService {
   }
 
   async findOne(id: number) {
-    const role = await this.findOneById(id, { include: ['users'] });
+    const role = await this.findOneById(id, {
+      include: ['users', 'permissionGroups'],
+    });
     return { data: role };
   }
 
@@ -57,11 +64,21 @@ export class RoleService {
   }
 
   async remove(id: number) {
-    const role = await this.findOneById(id, { include: ['users'] });
+    const role = await this.findOneById(id, {
+      include: ['users', 'permissionGroups'],
+    });
     this.isRoleCannotBeModified(role.name);
     await this.hasChild(role);
     await role.destroy();
     return { data: { success: true } };
+  }
+
+  async assignPermissionGroup(id: number, permissionGroupId: number) {
+    const role = await this.findOneById(id, { include: ['permissionGroups'] });
+    await this.permissionGroupService.findOneById(permissionGroupId);
+    await role.$add('permissionGroups', permissionGroupId);
+    const saved = await this.findOneById(id, { include: ['permissionGroups'] });
+    return { data: saved };
   }
 
   async findOneById(id: number, options?) {
@@ -82,8 +99,11 @@ export class RoleService {
   async hasChild(role: RoleEntity) {
     if (role.users.length > 0)
       throw new NotFoundException(
-        `Role with ID "${role.id}" cannot be deleted`,
+        `PermissionGroup with name "${role.name}" has users`,
       );
-    return false;
+    if (role.permissionGroups.length > 0)
+      throw new NotFoundException(
+        `PermissionGroup with name "${role.name}" has permission groups`,
+      );
   }
 }

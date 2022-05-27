@@ -9,13 +9,7 @@ export class PermissionGroupsRolesEntity extends BaseEntity {
   @Column
   roleId: number;
 
-  @BelongsTo(() => RoleEntity)
-  role: RoleEntity;
-
   @ForeignKey(() => PermissionGroupEntity)
   @Column
   permissionGroupId: number;
-
-  @BelongsTo(() => PermissionGroupEntity)
-  permissionGroup: PermissionGroupEntity;
 }
