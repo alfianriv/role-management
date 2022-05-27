@@ -12,5 +12,6 @@ import { PermissionGroupModule } from '../permission-group/permission-group.modu
   ],
   controllers: [PermissionController],
   providers: [PermissionService],
+  exports: [PermissionService],
 })
 export class PermissionModule {}
