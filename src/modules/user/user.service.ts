@@ -63,6 +63,13 @@ export class UserService {
     return { data: user };
   }
 
+  async revokeRole(userId: number, roleId: number) {
+    const user = await this.findOneById(userId);
+    await this.roleService.findOneById(roleId);
+    await user.update({ roleId: null });
+    return { data: user };
+  }
+
   async isDuplicateEmail(email: string, exceptionId: number = null) {
     const where: any = {
       email,

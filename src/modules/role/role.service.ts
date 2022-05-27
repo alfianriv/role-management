@@ -81,6 +81,14 @@ export class RoleService {
     return { data: saved };
   }
 
+  async revokePermissionGroup(id: number, permissionGroupId: number) {
+    const role = await this.findOneById(id, { include: ['permissionGroups'] });
+    await this.permissionGroupService.findOneById(permissionGroupId);
+    await role.$remove('permissionGroups', permissionGroupId);
+    const saved = await this.findOneById(id, { include: ['permissionGroups'] });
+    return { data: saved };
+  }
+
   async findOneById(id: number, options?) {
     const role = await this.repository.findByPk(id, options);
     if (!role) throw new NotFoundException(`Role with ID "${id}" not found`);

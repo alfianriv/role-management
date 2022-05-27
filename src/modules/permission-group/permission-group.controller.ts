@@ -12,7 +12,7 @@ import {
 import { PermissionGroupService } from './permission-group.service';
 import { CreatePermissionGroupDto } from './dto/create-permission-group.dto';
 import { UpdatePermissionGroupDto } from './dto/update-permission-group.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('permission-group')
 @Controller('permission-group')
@@ -44,6 +44,12 @@ export class PermissionGroupController {
   @Put(':id/role/:roleId')
   assignRole(@Param('id') id: string, @Param('roleId') roleId: string) {
     return this.permissionGroupService.assignRole(Number(id), Number(roleId));
+  }
+
+  @ApiOperation({ summary: 'Revoke role from permission group' })
+  @Delete(':id/role/:roleId')
+  revokeRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return this.permissionGroupService.revokeRole(Number(id), Number(roleId));
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

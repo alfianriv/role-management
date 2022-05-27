@@ -59,7 +59,14 @@ export class PermissionGroupService {
     const permissionGroup = await this.findOneById(id);
     await this.roleService.findOneById(roleId);
     await permissionGroup.$add('roles', roleId);
-    await permissionGroup.save();
+    const saved = await this.findOneById(id, { include: ['roles'] });
+    return { data: saved };
+  }
+
+  async revokeRole(id: number, roleId: number) {
+    const permissionGroup = await this.findOneById(id);
+    await this.roleService.findOneById(roleId);
+    await permissionGroup.$remove('roles', roleId);
     const saved = await this.findOneById(id, { include: ['roles'] });
     return { data: saved };
   }
