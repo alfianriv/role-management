@@ -1,8 +1,10 @@
 'use strict';
 
+const TABLE_NAME = 'PermissionGroupsRoles';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('PermissionGroupsRoles', {
+    await queryInterface.createTable(TABLE_NAME, {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -33,6 +35,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('PermissionGroupsRoles');
+    await queryInterface.dropTable(TABLE_NAME);
   },
 };
