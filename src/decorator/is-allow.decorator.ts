@@ -18,6 +18,7 @@ export class IsAllow implements CanActivate {
   }
 
   validateRequest(request: any) {
+    if (request.headers.role === 'superadmin') return true;
     const permissions = request.headers.permissions;
     const permission = this.permission;
     if (permissions.includes(permission)) return true;

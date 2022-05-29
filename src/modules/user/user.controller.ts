@@ -9,12 +9,14 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsAllow } from '@/src/decorator/is-allow.decorator';
+import { PaginationDto } from '@/src/commons/pagination.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -31,8 +33,8 @@ export class UserController {
   @ApiOperation({ summary: 'Find all user' })
   @UseGuards(new IsAllow('users:read'))
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: PaginationDto) {
+    return this.userService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one user' })

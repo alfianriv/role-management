@@ -24,14 +24,16 @@ export class AuthorizationMiddleware implements NestMiddleware {
     if (!token.includes('Bearer '))
       throw new UnauthorizedException(`Token is invalid`);
     token = token.replace('Bearer ', '');
-    const decoded = verify(token, 'secret');
+    const decoded = verify(token, process.env.SECRET_KEY);
     if (!decoded) throw new UnauthorizedException(`Token is invalid`);
     req.headers.user = decoded;
-    req.headers.permissions = await this.getPermissions(decoded.id);
+    const user = await this.getUser(decoded.id);
+    req.headers.permissions = user.getPermissions;
+    req.headers.role = user.role.name;
     next();
   }
 
-  async getPermissions(id: number) {
+  async getUser(id: number): Promise<UserEntity> {
     const user = await this.repository.findOne({
       where: { id },
       include: [
@@ -46,6 +48,6 @@ export class AuthorizationMiddleware implements NestMiddleware {
         },
       ],
     });
-    return user.getPermissions;
+    return user;
   }
 }

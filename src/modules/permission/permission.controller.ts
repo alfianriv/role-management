@@ -7,12 +7,14 @@ import {
   Delete,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsAllow } from '@/src/decorator/is-allow.decorator';
+import { PaginationDto } from '@/src/commons/pagination.dto';
 
 @ApiTags('permission')
 @Controller('permission')
@@ -29,8 +31,8 @@ export class PermissionController {
   @ApiOperation({ summary: 'Find all permission' })
   @UseGuards(new IsAllow('permissions:read'))
   @Get()
-  findAll() {
-    return this.permissionService.findAll();
+  findAll(@Query() query: PaginationDto) {
+    return this.permissionService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one permission by id' })

@@ -28,8 +28,18 @@ export class UserService {
     return { data: saved };
   }
 
-  findAll() {
-    return this.repository.findAll();
+  async findAll(query) {
+    const [data, total]: any = await this.repository.findAndCountAll({
+      limit: query.perPage,
+      offset: query.perPage * (query.page - 1),
+    });
+
+    return {
+      data,
+      total,
+      perPage: query.perPage,
+      page: query.page,
+    }
   }
 
   async findOne(id: number) {

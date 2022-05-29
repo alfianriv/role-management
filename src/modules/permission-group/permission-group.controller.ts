@@ -9,12 +9,14 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PermissionGroupService } from './permission-group.service';
 import { CreatePermissionGroupDto } from './dto/create-permission-group.dto';
 import { UpdatePermissionGroupDto } from './dto/update-permission-group.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsAllow } from '@/src/decorator/is-allow.decorator';
+import { PaginationDto } from '@/src/commons/pagination.dto';
 
 @ApiTags('permission-group')
 @Controller('permission-group')
@@ -33,8 +35,8 @@ export class PermissionGroupController {
   @ApiOperation({ summary: 'Find all permission group' })
   @UseGuards(new IsAllow('permission-groups:read'))
   @Get()
-  findAll() {
-    return this.permissionGroupService.findAll();
+  findAll(@Query() query: PaginationDto) {
+    return this.permissionGroupService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one permission group by id' })

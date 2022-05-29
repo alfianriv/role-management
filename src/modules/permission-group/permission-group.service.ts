@@ -1,3 +1,4 @@
+import { PaginationDto } from '@/src/commons/pagination.dto';
 import {
   BadRequestException,
   forwardRef,
@@ -31,8 +32,11 @@ export class PermissionGroupService {
     return { data: saved };
   }
 
-  findAll() {
-    return this.repository.findAll();
+  async findAll(query: PaginationDto) {
+    const [data, total]: any = await this.repository.findAndCountAll({
+      limit: query.perPage,
+      offset: query.perPage * (query.page - 1),
+    });
   }
 
   async findOne(id: number) {

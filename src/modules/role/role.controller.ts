@@ -7,12 +7,14 @@ import {
   Delete,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsAllow } from '@/src/decorator/is-allow.decorator';
+import { PaginationDto } from '@/src/commons/pagination.dto';
 
 @ApiTags('role')
 @Controller('role')
@@ -29,8 +31,8 @@ export class RoleController {
   @ApiOperation({ summary: 'Find all role' })
   @UseGuards(new IsAllow('roles:read'))
   @Get()
-  findAll() {
-    return this.roleService.findAll();
+  findAll(@Query() query: PaginationDto) {
+    return this.roleService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one role by id' })

@@ -18,7 +18,14 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('User not found');
 
     return {
-      data: { token: sign({ id: user.id }, 'secret') },
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        token: sign({ id: user.id }, process.env.SECRET_KEY),
+      },
     };
   }
 }
