@@ -1,4 +1,5 @@
-import { AllowNull, Column, Model, Table } from 'sequelize-typescript';
+import { AllowNull, Column, HasMany, Model, Table } from 'sequelize-typescript';
+import { PerfumeEntity } from '../../perfume/entities/perfume.entity';
 
 @Table({ tableName: 'Brands' })
 export class BrandEntity extends Model {
@@ -8,4 +9,7 @@ export class BrandEntity extends Model {
   @AllowNull
   @Column
   image: string;
+
+  @HasMany(() => PerfumeEntity)
+  perfumes: PerfumeEntity[];
 }

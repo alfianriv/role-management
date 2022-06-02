@@ -1,4 +1,12 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { PerfumeEntity } from '../../perfume/entities/perfume.entity';
 
 @Table({ tableName: 'Variants' })
 export class VariantEntity extends Model {
@@ -16,4 +24,11 @@ export class VariantEntity extends Model {
 
   @Column
   image: string;
+
+  @ForeignKey(() => PerfumeEntity)
+  @Column
+  perfumeId;
+
+  @HasOne(() => PerfumeEntity)
+  perfume: PerfumeEntity;
 }

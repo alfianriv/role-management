@@ -1,4 +1,15 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { BrandEntity } from '../../brand/entities/brand.entity';
+import { DiscussionEntity } from '../../discussion/entities/discussion.entity';
+import { VariantEntity } from '../../variant/entities/variant.entity';
 
 @Table({ tableName: 'Perfumes' })
 export class PerfumeEntity extends Model {
@@ -16,4 +27,17 @@ export class PerfumeEntity extends Model {
 
   @Column(DataType.TEXT)
   hotToUse: string;
+
+  @ForeignKey(() => BrandEntity)
+  @Column
+  brandId: number;
+
+  @HasOne(() => BrandEntity)
+  brand: BrandEntity;
+
+  @HasMany(() => VariantEntity)
+  variants: VariantEntity[];
+
+  @HasMany(() => DiscussionEntity)
+  discussions: DiscussionEntity[];
 }
