@@ -40,4 +40,25 @@ export class PerfumeEntity extends Model {
 
   @HasMany(() => DiscussionEntity)
   discussions: DiscussionEntity[];
+
+  @Column(DataType.VIRTUAL)
+  get avg_rating() {
+    const ratings = this.variants?.map((variant) => variant.get().avg_rating);
+    if (ratings) {
+      return ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    }
+    return 0;
+  }
+
+  @Column(DataType.VIRTUAL)
+  get total_review() {
+    return this.variants
+      ?.map((variant) => variant.get().total_review)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  @Column(DataType.VIRTUAL)
+  get total_discussion() {
+    return this.discussions?.length;
+  }
 }
