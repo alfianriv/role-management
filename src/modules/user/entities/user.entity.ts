@@ -30,14 +30,18 @@ export class UserEntity extends BaseEntity {
   role: RoleEntity;
 
   @Column(DataType.VIRTUAL)
-  get getPermissions(){
+  get getPermissions() {
     const role = this.role?.get();
     if (!role) return [];
-    const permissionGroups = role.permissionGroups?.map(pg => pg.get());
+    const permissionGroups = role.permissionGroups?.map((pg) => pg.get());
     const permissions = [];
     if (permissionGroups) {
-      permissionGroups.forEach(permissionGroup => {
-        permissions.push(...permissionGroup.permissions?.map(permission => permission.get().name));
+      permissionGroups.forEach((permissionGroup) => {
+        permissions.push(
+          ...permissionGroup.permissions?.map(
+            (permission) => permission.get().name,
+          ),
+        );
       });
     }
     return [...new Set(permissions)];

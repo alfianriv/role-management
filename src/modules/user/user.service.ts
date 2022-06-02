@@ -39,7 +39,7 @@ export class UserService {
       total,
       perPage: query.perPage,
       page: query.page,
-    }
+    };
   }
 
   async findOne(id: number) {

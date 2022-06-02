@@ -8,6 +8,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AuthorizationMiddleware } from './middleware/authorization.middleware';
 import { SequelizeModule as SqlModule } from '@nestjs/sequelize';
 import { UserEntity } from './modules/user/entities/user.entity';
+import { BrandModule } from './modules/brand/brand.module';
+import { PerfumeModule } from './modules/perfume/perfume.module';
+import { VariantModule } from './modules/variant/variant.module';
+import { DiscussionModule } from './modules/discussion/discussion.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -18,6 +23,11 @@ import { UserEntity } from './modules/user/entities/user.entity';
     PermissionModule,
     SequelizeModule,
     AuthModule,
+    BrandModule,
+    PerfumeModule,
+    VariantModule,
+    DiscussionModule,
+    ReviewModule,
   ],
   controllers: [],
   providers: [],
