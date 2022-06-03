@@ -13,9 +13,10 @@ import { PerfumeService } from './perfume.service';
 import { CreatePerfumeDto } from './dto/create-perfume.dto';
 import { UpdatePerfumeDto } from './dto/update-perfume.dto';
 import { PaginationDto } from '@/src/commons/pagination.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsAllow } from '@/src/decorator/is-allow.decorator';
 
+@ApiTags('perfume')
 @Controller('perfume')
 export class PerfumeController {
   constructor(private readonly perfumeService: PerfumeService) {}

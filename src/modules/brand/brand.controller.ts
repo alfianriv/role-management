@@ -16,7 +16,7 @@ import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 
-@ApiTags('Brand')
+@ApiTags('brand')
 @Controller('brand')
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
