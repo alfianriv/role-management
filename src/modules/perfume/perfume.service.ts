@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
+import { PaginationDto } from '@/src/commons/pagination.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { BrandEntity } from '../brand/entities/brand.entity';
+import { VariantEntity } from '../variant/entities/variant.entity';
 import { CreatePerfumeDto } from './dto/create-perfume.dto';
 import { UpdatePerfumeDto } from './dto/update-perfume.dto';
+import { PerfumeEntity } from './entities/perfume.entity';
 
 @Injectable()
 export class PerfumeService {
-  create(createPerfumeDto: CreatePerfumeDto) {
-    return 'This action adds a new perfume';
+  constructor(
+    @InjectModel(PerfumeEntity)
+    private readonly repository: typeof PerfumeEntity,
+  ) {}
+
+  async create(data: CreatePerfumeDto) {
+    const perfume: any = data;
+    const saved = await this.repository.create(perfume);
+    return { data: saved };
   }
 
-  findAll() {
-    return `This action returns all perfume`;
+  async findAll(query: PaginationDto) {
+    const [data, total]: any = await this.repository.findAndCountAll({
+      limit: query.perPage,
+      offset: query.perPage * (query.page - 1),
+    });
+
+    return {
+      data,
+      total,
+      page: query.page,
+      perPage: query.perPage,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} perfume`;
+  async findOne(id: number) {
+    const perfume = await this.findOneById(id, {
+      include: [
+        {
+          model: BrandEntity,
+        },
+        {
+          model: VariantEntity,
+        },
+      ],
+    });
+    return { data: perfume };
   }
 
-  update(id: number, updatePerfumeDto: UpdatePerfumeDto) {
-    return `This action updates a #${id} perfume`;
+  async update(id: number, data: UpdatePerfumeDto) {
+    const perfume = await this.findOneById(id);
+    await perfume.update({ ...data });
+    return { data: perfume };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} perfume`;
+  async remove(id: number) {
+    const perfume = await this.findOneById(id);
+    await perfume.destroy();
+    return { data: { success: true } };
+  }
+
+  async findOneById(id: number, options?) {
+    const perfume = await this.repository.findByPk(id, options);
+    if (!perfume)
+      throw new NotFoundException(`Perfume with ID "${id}" not found`);
+
+    return perfume;
   }
 }

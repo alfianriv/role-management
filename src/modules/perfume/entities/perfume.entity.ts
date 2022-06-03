@@ -26,7 +26,7 @@ export class PerfumeEntity extends Model {
   ingredients: string;
 
   @Column(DataType.TEXT)
-  hotToUse: string;
+  howtToUse: string;
 
   @ForeignKey(() => BrandEntity)
   @Column
