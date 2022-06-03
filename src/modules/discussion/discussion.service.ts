@@ -1,26 +1,74 @@
-import { Injectable } from '@nestjs/common';
+import { PaginationDto } from '@/src/commons/pagination.dto';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { UpdateDiscussionDto } from './dto/update-discussion.dto';
+import { DiscussionEntity } from './entities/discussion.entity';
 
 @Injectable()
 export class DiscussionService {
-  create(createDiscussionDto: CreateDiscussionDto) {
-    return 'This action adds a new discussion';
+  constructor(
+    @InjectModel(DiscussionEntity)
+    private readonly repository: typeof DiscussionEntity,
+  ) {}
+
+  async create(user, data: CreateDiscussionDto) {
+    const discussion: any = data;
+    discussion.userId = user.id;
+    const saved = await this.repository.create(discussion);
+    return { data: saved };
   }
 
-  findAll() {
-    return `This action returns all discussion`;
+  async findAll(query: PaginationDto) {
+    const [data, total]: any = await this.repository.findAndCountAll({
+      limit: query.perPage,
+      offset: query.perPage * (query.page - 1),
+    });
+
+    return {
+      data,
+      total,
+      perPage: query.perPage,
+      page: query.page,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} discussion`;
+  async findOne(id: number) {
+    const discussion = await this.findOneById(id, {
+      include: ['user', 'replies', 'replies.user', 'perfume'],
+    });
+    return { data: discussion };
   }
 
-  update(id: number, updateDiscussionDto: UpdateDiscussionDto) {
-    return `This action updates a #${id} discussion`;
+  async update(user, id: number, data: UpdateDiscussionDto) {
+    const discussion = await this.findOneById(id);
+    if (discussion.userId !== user.id)
+      throw new UnauthorizedException(
+        `You are not allowed to update this discussion`,
+      );
+    await discussion.update({ ...data });
+    return { data: discussion };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} discussion`;
+  async remove(user, id: number) {
+    const discussion = await this.findOneById(id);
+    if (discussion.userId !== user.id)
+      throw new UnauthorizedException(
+        `You are not allowed to delete this discussion`,
+      );
+    await discussion.destroy();
+    return { data: { success: true } };
+  }
+
+  async findOneById(id: number, options?) {
+    const discussion = await this.repository.findByPk(id, options);
+    if (!discussion)
+      throw new NotFoundException(`Discussion with id ${id} not found`);
+
+    return discussion;
   }
 }

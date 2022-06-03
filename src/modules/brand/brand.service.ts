@@ -33,7 +33,9 @@ export class BrandService {
   }
 
   async findOne(id: number) {
-    const brand = await this.findOneById(id);
+    const brand = await this.findOneById(id, {
+      include: ['perfumes'],
+    });
     return { data: brand };
   }
 

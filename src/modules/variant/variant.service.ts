@@ -36,14 +36,7 @@ export class VariantService {
 
   async findOne(id: number) {
     const variant = await this.findOneById(id, {
-      include: [
-        {
-          model: PerfumeEntity,
-        },
-        {
-          model: ReviewEntity,
-        },
-      ],
+      include: ['perfume', 'variants', 'reviews'],
     });
     return { data: variant };
   }
